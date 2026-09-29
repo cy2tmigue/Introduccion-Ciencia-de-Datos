@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS stadium;
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS award;
 DROP TABLE IF EXISTS player;
-DROP TABLE IF EXISTS position;
+DROP TABLE IF EXISTS `position`;
 DROP TABLE IF EXISTS team;
 DROP TABLE IF EXISTS federation;
 DROP TABLE IF EXISTS country;
@@ -161,7 +161,7 @@ CREATE TABLE player (
     PRIMARY KEY (player_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE position (
+CREATE TABLE `position` (
     position_id INT NOT NULL,
     position_code VARCHAR(20),
     position_name VARCHAR(80) NOT NULL,
@@ -239,7 +239,7 @@ CREATE TABLE player_appearance (
         FOREIGN KEY (player_id) REFERENCES player(player_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_player_appearance_position
-        FOREIGN KEY (position_id) REFERENCES position(position_id)
+        FOREIGN KEY (position_id) REFERENCES `position`(position_id)
         ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
