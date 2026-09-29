@@ -1,0 +1,70 @@
+name: Validate Avance 1
+
+on:
+  push:
+    branches:
+      - avance-1-worldcup
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "Proyecto final/Avance 1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: python -m pip install -r requirements.txt
+
+      - name: Validar sintaxis Python
+        run: python -m py_compile src/*.py
+
+      - name: Descargar CSV fuente
+        run: python src/download_data.py
+
+      - name: Generar datos limpios
+        run: python src/prepare_data.py
+
+      - name: Comprobar las 15 tablas
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          expected = {
+              "award.csv",
+              "award_winner.csv",
+              "city.csv",
+              "confederation.csv",
+              "country.csv",
+              "federation.csv",
+              "goal.csv",
+              "matches.csv",
+              "player.csv",
+              "player_appearance.csv",
+              "position.csv",
+              "region.csv",
+              "stadium.csv",
+              "team.csv",
+              "tournament.csv",
+          }
+
+          clean = Path("data/clean")
+          found = {p.name for p in clean.glob("*.csv")}
+          missing = expected - found
+
+          if missing:
+              raise SystemExit(f"Faltan CSV limpios: {sorted(missing)}")
+
+          print("OK: se generaron los 15 CSV limpios.")
+          PY
