@@ -11,6 +11,28 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: world_cup
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: world_cup
+
     defaults:
       run:
         working-directory: "Proyecto final/Avance 1"
@@ -68,3 +90,9 @@ jobs:
 
           print("OK: se generaron los 15 CSV limpios.")
           PY
+
+      - name: Crear esquema MySQL
+        run: python src/create_database.py
+
+      - name: Cargar datos en MySQL
+        run: python src/load_data.py
