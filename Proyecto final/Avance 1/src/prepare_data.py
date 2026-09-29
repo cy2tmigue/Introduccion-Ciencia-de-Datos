@@ -45,6 +45,19 @@ def require_columns(df: pd.DataFrame, columns: list[str], dataset: str) -> None:
         raise ValueError(f"{dataset}: faltan columnas requeridas: {missing}")
 
 
+def clean_integer_columns(df: pd.DataFrame, columns: list[str]) -> None:
+    for column in columns:
+        if column in df.columns:
+            df[column] = pd.to_numeric(df[column], errors="coerce").astype("Int64")
+
+
+def clean_date_columns(df: pd.DataFrame, columns: list[str]) -> None:
+    for column in columns:
+        if column in df.columns:
+            parsed = pd.to_datetime(df[column], errors="coerce")
+            df[column] = parsed.dt.strftime("%Y-%m-%d")
+
+
 def main() -> None:
     print("Preparando y normalizando datos para las 15 tablas del Avance 1...\n")
 
@@ -437,6 +450,93 @@ def main() -> None:
     award_winner = award_winners[aw_cols].drop_duplicates(
         subset=["tournament_id", "award_id", "player_id"]
     )
+
+    # ------------------------------------------------------------------
+    # Limpieza final de tipos para MySQL
+    # ------------------------------------------------------------------
+    clean_integer_columns(region, ["region_id"])
+    clean_integer_columns(country, ["country_id", "region_id"])
+    clean_integer_columns(federation, ["federation_id", "country_id"])
+    clean_integer_columns(team, ["mens_team", "womens_team", "country_id", "federation_id"])
+    clean_integer_columns(city, ["city_id", "country_id"])
+    clean_integer_columns(stadium, ["city_id", "stadium_capacity"])
+    clean_integer_columns(award, ["year_introduced"])
+    clean_date_columns(player, ["birth_date"])
+    clean_integer_columns(
+        player,
+        [
+            "female",
+            "goal_keeper",
+            "defender",
+            "midfielder",
+            "forward",
+            "count_tournaments",
+        ],
+    )
+    clean_integer_columns(position, ["position_id"])
+    clean_date_columns(tournament, ["start_date", "end_date"])
+    clean_integer_columns(
+        tournament,
+        [
+            "year",
+            "host_country_id",
+            "host_won",
+            "count_teams",
+            "group_stage",
+            "second_group_stage",
+            "final_round",
+            "round_of_16",
+            "quarter_finals",
+            "semi_finals",
+            "third_place_match",
+            "final",
+        ],
+    )
+    clean_date_columns(matches_clean, ["match_date"])
+    clean_integer_columns(
+        matches_clean,
+        [
+            "group_stage",
+            "knockout_stage",
+            "replayed",
+            "replay",
+            "home_team_score",
+            "away_team_score",
+            "home_team_score_margin",
+            "away_team_score_margin",
+            "extra_time",
+            "penalty_shootout",
+            "home_team_score_penalties",
+            "away_team_score_penalties",
+            "home_team_win",
+            "away_team_win",
+            "draw",
+        ],
+    )
+    clean_integer_columns(
+        player_appearance,
+        [
+            "position_id",
+            "home_team",
+            "away_team",
+            "shirt_number",
+            "starter",
+            "substitute",
+        ],
+    )
+    clean_integer_columns(
+        goal,
+        [
+            "home_team",
+            "away_team",
+            "shirt_number",
+            "minute_regulation",
+            "minute_stoppage",
+            "own_goal",
+            "penalty",
+        ],
+    )
+    clean_integer_columns(award_winner, ["shared"])
 
     # Guardado en orden lógico
     save(confederation, "confederation")
