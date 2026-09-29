@@ -101,7 +101,7 @@ CREATE TABLE team (
     mens_team_wikipedia_link VARCHAR(500),
     womens_team_wikipedia_link VARCHAR(500),
     PRIMARY KEY (team_id),
-    UNIQUE KEY uq_team_code (team_code),
+    KEY idx_team_code (team_code),
     CONSTRAINT fk_team_country
         FOREIGN KEY (country_id) REFERENCES country(country_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
